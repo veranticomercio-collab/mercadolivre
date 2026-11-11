@@ -32,8 +32,8 @@ export default function App(){
  const taxFor=(d:string)=>taxRates.filter(x=>x.effective_date<=d).at(-1)?.tax_pct??null;
  const inventoryMap=useMemo(()=>new Map(inventory.map(i=>[i.item_id,i])),[inventory]);
  const finance=useMemo(()=>{
-  const since=new Date(Date.now()-(Number(financeDays)-1)*86400000);
-  const eligible=orders.filter(o=>o.status==="paid"&&new Date(o.date_created)>=since);
+  const startKey=day(new Date(Date.now()-(Number(financeDays)-1)*86400000).toISOString());
+  const eligible=orders.filter(o=>o.status==="paid"&&day(o.date_created)>=startKey&&day(o.date_created)<=todayKey());
   let revenue=0,fees=0,goods=0,taxes=0,missingCost=0,missingFee=0,missingTax=0;
   const sku=new Map<string,{name:string;revenue:number;fees:number;goods:number;taxes:number;qty:number;missing:number}>();
   for(const o of eligible){
@@ -50,7 +50,7 @@ export default function App(){
     sku.set(i.item_id,v);
    }
   }
-  const ads=adsDaily.filter(a=>new Date(a.metric_date+"T12:00:00Z")>=since).reduce((n,a)=>n+Number(a.cost||0),0);
+  const ads=adsDaily.filter(a=>a.metric_date>=startKey&&a.metric_date<=todayKey()).reduce((n,a)=>n+Number(a.cost||0),0);
   return {revenue,fees,goods,taxes,ads,missingCost,missingFee,missingTax,sku:[...sku.entries()].sort((a,b)=>b[1].revenue-a[1].revenue),count:eligible.length};
  },[orders,costHistory,taxRates,adsDaily,financeDays]);
  async function saveRate(action:"save_tax"|"save_cost"){setSaving(true);setError("");try{
