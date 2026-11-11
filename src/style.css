@@ -29,3 +29,5 @@ nav .selected{color:#9f593e}
 .stock-foot button{color:#9f593e;border-color:#e7d5c9}
 .search{border-color:#e7e0db}
 @media(max-width:700px){.brand-mark{width:35px;height:42px}.brand-word strong{font-size:14px}.brand-word span{font-size:8px}}
+
+.dispatch-switch{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0 10px}.dispatch-switch button{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:17px;border:1px solid #e6e0dc;border-radius:12px;background:#fff;color:#555;font-size:14px;font-weight:750;text-align:left}.dispatch-switch button.on{background:#292929;color:#fff;border-color:#292929}.dispatch-switch b{font-size:20px}.dispatch-hint{font-size:12px;color:#657184;margin:0 0 15px}@media(max-width:700px){.dispatch-switch button{padding:12px;font-size:12px}.dispatch-switch b{font-size:17px}}
