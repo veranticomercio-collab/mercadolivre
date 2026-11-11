@@ -30,6 +30,7 @@ export default function App(){
  async function refresh(){if(!session)return;setLoading(true);setError("");try{const body=await api();setOrders(body.orders||[]);setInventory(body.inventory||[]);setSettings(body.sku_settings||[]);setTaxRates(body.tax_rates||[]);setCostHistory(body.cost_history||[]);setAdsDaily(body.ads_daily||[]);setExpenses(body.operating_expenses||[]);setPricingCategories(body.pricing_categories||[]);setShippingBands(body.shipping_bands||[]);setItemPricingCategories(body.item_pricing_categories||[]);setUpdated(body.updated_at)}catch(e:any){setError(e.message||"Erro ao carregar")}finally{setLoading(false)}}
  useEffect(()=>{if(session)refresh();else{setOrders([]);setInventory([])}},[session?.user?.id]);
  useEffect(()=>{if(!session)return;const t=setInterval(refresh,60000);return()=>clearInterval(t)},[session?.user?.id]);
+ const settingsMap=useMemo(()=>new Map(settings.map(s=>[s.item_id,s])),[settings]);
  const currentTax=taxRates.filter(x=>x.effective_date<=todayKey()).at(-1)?.tax_pct??4;
  useEffect(()=>setFinanceTax(String(currentTax)),[currentTax]);
  const costFor=(item:string,d:string)=>costHistory.filter(x=>x.item_id===item&&x.effective_date<=d).at(-1)?.unit_cost??null;
@@ -92,7 +93,7 @@ export default function App(){
  const history=useMemo(()=>orders.filter(o=>!active(o)).filter(o=>[o.buyer_name,o.buyer_nickname,o.order_id,...o.items.map(i=>i.title)].join(" ").toLowerCase().includes(filter.toLowerCase())).sort((a,b)=>+new Date(b.date_created)-+new Date(a.date_created)),[orders,filter]);
  const soldToday=orders.filter(o=>o.status==="paid"&&day(o.date_created)===todayKey());
  const printToday=orders.filter(o=>o.printed_at&&day(o.printed_at)===todayKey()&&["spooled","confirmed"].includes(o.print_status));
- const settingsMap=useMemo(()=>new Map(settings.map(s=>[s.item_id,s])),[settings]);
+
  const soldCounts=useMemo(()=>{const map=new Map<string,{d7:number;d30:number;today:number}>();const now=Date.now();for(const o of orders){if(o.status!=="paid")continue;const age=(now-new Date(o.date_created).getTime())/86400000;for(const i of o.items){const v=map.get(i.item_id)||{d7:0,d30:0,today:0};if(age>=0&&age<=7)v.d7+=i.quantity;if(age>=0&&age<=30)v.d30+=i.quantity;if(day(o.date_created)===todayKey())v.today+=i.quantity;map.set(i.item_id,v)}}return map},[orders]);
  const stockRows=useMemo(()=>inventory.map(i=>{const s=settingsMap.get(i.item_id);const v=soldCounts.get(i.item_id)||{d7:0,d30:0,today:0};const d7=v.d7/7,d30=v.d30/30;const daily=d7>0?d7*.7+d30*.3:d30;const lead=s?.lead_days??3,safety=s?.safety_days??2;const variable=d7>0&&d30>0?Math.max(0,(d7-d30)/Math.max(d30,.1)):0;const coverage=Math.max(lead+safety+2,Math.ceil((lead+safety+2)*(1+Math.min(variable,.5))));const qty=Math.max(0,Math.ceil(daily*coverage-Number(i.available_quantity||0)));const available=Number(i.available_quantity||0);return{...i,setting:s,daily,coverage,qty,available,stats:v,investment:(costFor(i.item_id,todayKey())??s?.unit_cost)!=null?qty*Number(costFor(i.item_id,todayKey())??s?.unit_cost):null,days:daily>0?available/daily:null}}).sort((a,b)=>(a.days??9999)-(b.days??9999)),[inventory,settingsMap,soldCounts]);
  const chosen=stockRows.find(x=>x.item_id===selected);
