@@ -3,3 +3,29 @@
 .notice{background:#eefbf2;color:#17603a;padding:12px;border-radius:9px;font-size:13px}
 
 .subtabs{display:flex;gap:8px;margin:0 0 18px}.subtabs button{border:1px solid #dce4ef;background:white;border-radius:10px;padding:11px 15px;color:#52627b;font-weight:700}.subtabs button.on{background:#254fd0;color:white;border-color:#254fd0}.product-group{background:white;border:1px solid #e3e9f2;border-radius:14px;margin-bottom:14px;overflow:hidden}.product-group-title{padding:16px 19px;display:flex;justify-content:space-between;gap:12px;align-items:center;background:#f8faff}.product-group-title span{font-size:12px;color:#66758c;white-space:nowrap}.buyer-line{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 19px;border-top:1px solid #eef1f5;font-size:13px}.buyer-line>div:last-child{text-align:right;min-width:125px}.buyer-line small,.stock-head small{display:block;font-size:11px;color:#74829a;margin-top:4px}.stock-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.stock-card{background:#fff;border:1px solid #e3e9f2;border-radius:14px;padding:18px;min-width:0}.stock-head{display:flex;justify-content:space-between;gap:10px;align-items:start}.stock-head strong{font-size:15px}.pill{font-size:10px;background:#eef6ef;color:#287342;padding:6px 8px;border-radius:20px;white-space:nowrap}.pill.warn{background:#fff3e2;color:#a05b08}.stock-numbers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:18px 0}.stock-numbers>div{background:#f4f7fb;border-radius:10px;padding:11px 8px;min-width:0}.stock-numbers small{font-size:10px;color:#6e7b90;display:block}.stock-numbers b{font-size:23px;display:block;margin-top:5px}.stock-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px}.stock-foot button{border:1px solid #c9d7f1;border-radius:9px;padding:10px;background:white;color:#254fd0;font-weight:700}.stock-note{font-size:12px;color:#986017;display:flex;align-items:start;gap:7px;margin-bottom:0}.modal-backdrop{position:fixed;inset:0;background:#0d1b35a6;display:grid;place-items:center;padding:16px;z-index:10}.modal{background:white;border-radius:16px;padding:25px;width:min(100%,450px);max-height:95vh;overflow:auto;box-shadow:0 18px 55px #0003}.modal h2{margin:0 0 7px}.modal p{color:#63738a;font-size:13px}.modal label{display:grid;gap:6px;font-size:13px;font-weight:650;margin:14px 0}.modal input{padding:11px;border:1px solid #d5deec;border-radius:8px;width:100%}.modal small{color:#6c788b}.modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}.modal-actions button{display:flex;align-items:center;gap:6px;padding:12px 16px;border:1px solid #dce4ef;border-radius:9px;background:white}.modal-actions .primary{background:#254fd0;color:white;border-color:#254fd0}@media(max-width:700px){.stock-grid{grid-template-columns:1fr}.stock-numbers b{font-size:20px}.product-group-title{align-items:flex-start;flex-direction:column}.buyer-line{padding:12px;align-items:flex-start}.buyer-line>div:last-child{min-width:90px}.toolbar nav button{padding:10px 6px;font-size:12px}.subtabs button{flex:1;font-size:12px}.stock-foot{flex-wrap:wrap}}
+
+/* Pearland visual identity */
+:root{color:#24252a;background:#f7f6f4}
+.brand{display:flex;align-items:center;gap:11px;letter-spacing:0}
+.brand-mark{width:43px;height:51px;object-fit:contain;flex:none}
+.brand-word{display:flex;flex-direction:column;gap:3px}
+.brand-word strong{font-size:17px;font-weight:850;letter-spacing:2.2px;line-height:1}
+.brand-word span{font-size:9px;font-weight:750;letter-spacing:2px;color:#c87559;background:none;padding:0;border-radius:0}
+header{background:#fffdfb;border-bottom:1px solid #ece8e5}
+.login{background:radial-gradient(circle at 48% 24%,#fff9f5 0%,#f2f0ed 80%)}
+.login-card{border-color:#e9e2dc;box-shadow:0 20px 65px #271b141a}
+.login-card .brand{justify-content:center;gap:15px}
+.login-card .brand-mark{width:70px;height:84px}
+.login-card .brand-word strong{font-size:24px;letter-spacing:3px}
+.login-card .brand-word span{font-size:11px}
+.login-card h1{margin-top:24px}
+.login form button,.subtabs button.on,.modal-actions .primary{background:#292929;border-color:#292929}
+.login form .signup-toggle{background:transparent;color:#b76d50;border-color:#e4d5cb}
+.stats svg{color:#c47b5f}
+.stats article,.order,.products,.stock-card,.product-group{border-color:#ebe6e2;box-shadow:0 3px 12px #2e24140a}
+.eyebrow{color:#b87559}
+nav{background:#efedea}
+nav .selected{color:#9f593e}
+.stock-foot button{color:#9f593e;border-color:#e7d5c9}
+.search{border-color:#e7e0db}
+@media(max-width:700px){.brand-mark{width:35px;height:42px}.brand-word strong{font-size:14px}.brand-word span{font-size:8px}}
