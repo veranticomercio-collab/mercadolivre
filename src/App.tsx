@@ -2,7 +2,7 @@ import{useEffect,useMemo,useState}from"react";
 import{supabase,url}from"./supabase";
 import{Package,Printer,FileCheck,RefreshCw,LogOut,Search,ShoppingBag,AlertTriangle,Box,CalendarDays,Save}from"lucide-react";
 type Item={title:string;item_id:string;quantity:number};
-type Order={order_id:string;shipment_id:string|null;date_created:string;status:string;shipment_status:string|null;buyer_name:string|null;buyer_nickname:string|null;items:Item[];paid_amount:number;invoice_status:string;print_status:string;printed_at:string|null};
+type Order={order_id:string;shipment_id:string|null;date_created:string;status:string;shipment_status:string|null;shipment_substatus?:string|null;buyer_name:string|null;buyer_nickname:string|null;items:Item[];paid_amount:number;invoice_status:string;print_status:string;printed_at:string|null};
 type Stock={item_id:string;title:string;status:string;available_quantity:number;price:number;synced_at:string};
 type Setting={item_id:string;unit_cost:number|null;lead_days:number;safety_days:number;physical_count:number|null;physical_counted_at:string|null};
 const money=(n:number)=>new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(n||0);
@@ -11,9 +11,9 @@ const day=(s:string)=>new Intl.DateTimeFormat("en-CA",{timeZone:"America/Sao_Pau
 const todayKey=()=>day(new Date().toISOString());
 const invoiceLabel=(s:string)=>({authorized:"Nota autorizada",pending_authorization:"Aguardando autorização",unchecked:"Nota pendente",unknown:"Situação não confirmada"} as Record<string,string>)[s]||"Em processamento";
 const printLabel=(s:string)=>({spooled:"Enviada à impressora",confirmed:"Impressão confirmada",not_queued:"Aguardando etiqueta",queued:"Na fila de impressão",pending:"Pendente",claimed:"Em impressão",failed:"Falha na impressão"} as Record<string,string>)[s]||"Em processamento";
-const sent=(o:Order)=>["shipped","delivered","not_delivered","returned","cancelled"].includes(o.shipment_status||"")||["cancelled"].includes(o.status);
+const sent=(o:Order)=>o.shipment_substatus==="dropped_off"||["shipped","delivered","not_delivered","returned","cancelled"].includes(o.shipment_status||"")||["cancelled"].includes(o.status);
 const active=(o:Order)=>o.status==="paid"&&!sent(o);
-const statusLabel=(o:Order)=>o.status==="cancelled"?"Cancelado":sent(o)?"Enviado / encerrado":o.status==="paid"?"Pago":"Aguardando pagamento";
+const statusLabel=(o:Order)=>o.status==="cancelled"?"Cancelado":sent(o)?"Entregue à transportadora / encerrado":o.status==="paid"?"Pago":"Aguardando pagamento";
 export default function App(){
  const[email,setEmail]=useState("");const[password,setPassword]=useState("");const[signup,setSignup]=useState(false);const[notice,setNotice]=useState("");const[session,setSession]=useState<any>(null);
  const[orders,setOrders]=useState<Order[]>([]);const[inventory,setInventory]=useState<Stock[]>([]);const[settings,setSettings]=useState<Setting[]>([]);
