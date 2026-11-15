@@ -4,6 +4,15 @@ const db=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_SERVI
 const headers={"access-control-allow-origin":"*","access-control-allow-headers":"authorization,apikey,content-type","access-control-allow-methods":"GET,POST,OPTIONS","cache-control":"no-store"};
 const reply=(v:unknown,s=200)=>Response.json(v,{status:s,headers});
 
+// Accepts Mercado Livre / Mercado Libre hosts (and their subdomains such as produto.mercadolivre.com.br).
+export const ML_HOST=/(^|\.)mercadolivre\.com\.br$|(^|\.)mercadolibre\.com$/i;
+// Extracts the listing id. Catalog pages carry the actual listing in ?wid= (or ?item_id=), so that wins over the path.
+export function extractItemId(u:URL):string|null{
+ const q=(u.searchParams.get("wid")||u.searchParams.get("item_id")||"").match(/^MLB[-_]?(\d{7,15})$/i);
+ const m=q||(u.pathname+u.search).match(/(?:MLB[-_]?|item_id=MLB)(\d{7,15})/i);
+ return m?"MLB"+m[1]:null;
+}
+
 async function loadInventory(){
  const pageSize=500;
  const inventory=[];
@@ -29,10 +38,9 @@ Deno.serve(async req=>{
   if(body.action==="lookup_competitor"){
    const raw=String(body.url||"").trim().slice(0,1500);
    let u:URL;try{u=new URL(raw)}catch{return reply({error:"invalid_url"},400)}
-   if(!/(^|\\.)mercadolivre\\.com\\.br$|(^|\\.)mercadolibre\\.com$/.test(u.hostname))return reply({error:"invalid_domain"},400);
-   const match=(u.pathname+u.search).match(/(?:MLB[-_]?|item_id=MLB)(\\d{7,15})/i);
-   if(!match)return reply({error:"item_id_not_found_use_full_link"},400);
-   const itemId="MLB"+match[1];
+   if(!ML_HOST.test(u.hostname))return reply({error:"invalid_domain"},400);
+   const itemId=extractItemId(u);
+   if(!itemId)return reply({error:"item_id_not_found_use_full_link"},400);
    const {data:tokens}=await db.from("ml_oauth_tokens").select("access_token").limit(1);
    const token=tokens?.[0]?.access_token;
    if(!token)return reply({error:"ml_connection_unavailable"},503);
@@ -101,7 +109,7 @@ Deno.serve(async req=>{
   const cost=n(body.unit_cost,1000000),lead=n(body.lead_days,180,true),safety=n(body.safety_days,90,true),physical=n(body.physical_count,1000000,true);
   if([cost,lead,safety,physical].some(v=>v===undefined)||lead===null||safety===null)return reply({error:"invalid_values"},400);
   const {error:e}=await db.from("pearland_sku_settings").upsert({item_id:body.item_id,lead_days:lead,safety_days:safety,physical_count:physical,physical_counted_at:physical===null?null:new Date().toISOString(),updated_by:user.id,updated_at:new Date().toISOString()},{onConflict:"item_id"});
-  
+
   return e?reply({error:"save_failed"},500):reply({ok:true});
  }
  const {data:orders,error:oe}=await db.from("ml_orders_current").select("order_id,shipment_id,date_created,status,item_ids,item_titles,quantities,paid_amount,order_json,synced_at").order("date_created",{ascending:false}).limit(1000);
