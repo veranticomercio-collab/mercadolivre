@@ -4,6 +4,15 @@ const db=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_SERVI
 const headers={"access-control-allow-origin":"*","access-control-allow-headers":"authorization,apikey,content-type","access-control-allow-methods":"GET,POST,OPTIONS","cache-control":"no-store"};
 const reply=(v:unknown,s=200)=>Response.json(v,{status:s,headers});
 
+// Accepts Mercado Livre / Mercado Libre hosts (and their subdomains such as produto.mercadolivre.com.br).
+export const ML_HOST=/(^|\.)mercadolivre\.com\.br$|(^|\.)mercadolibre\.com$/i;
+// Extracts the listing id. Catalog pages carry the actual listing in ?wid= (or ?item_id=), so that wins over the path.
+export function extractItemId(u:URL):string|null{
+ const q=(u.searchParams.get("wid")||u.searchParams.get("item_id")||"").match(/^MLB[-_]?(\d{7,15})$/i);
+ const m=q||(u.pathname+u.search).match(/(?:MLB[-_]?|item_id=MLB)(\d{7,15})/i);
+ return m?"MLB"+m[1]:null;
+}
+
 async function loadInventory(){
  const pageSize=500;
  const inventory=[];
@@ -29,10 +38,9 @@ Deno.serve(async req=>{
   if(body.action==="lookup_competitor"){
    const raw=String(body.url||"").trim().slice(0,1500);
    let u:URL;try{u=new URL(raw)}catch{return reply({error:"invalid_url"},400)}
-   if(!/(^|\\.)mercadolivre\\.com\\.br$|(^|\\.)mercadolibre\\.com$/.test(u.hostname))return reply({error:"invalid_domain"},400);
-   const match=(u.pathname+u.search).match(/(?:MLB[-_]?|item_id=MLB)(\\d{7,15})/i);
-   if(!match)return reply({error:"item_id_not_found_use_full_link"},400);
-   const itemId="MLB"+match[1];
+   if(!ML_HOST.test(u.hostname))return reply({error:"invalid_domain"},400);
+   const itemId=extractItemId(u);
+   if(!itemId)return reply({error:"item_id_not_found_use_full_link"},400);
    const {data:tokens}=await db.from("ml_oauth_tokens").select("access_token").limit(1);
    const token=tokens?.[0]?.access_token;
    if(!token)return reply({error:"ml_connection_unavailable"},503);
@@ -104,20 +112,26 @@ Deno.serve(async req=>{
   
   return e?reply({error:"save_failed"},500):reply({ok:true});
  }
- const {data:orders,error:oe}=await db.from("ml_orders_current").select("order_id,shipment_id,date_created,status,item_ids,item_titles,quantities,paid_amount,order_json,synced_at").order("date_created",{ascending:false}).limit(1000);
+ const {data:orders,error:oe}=await db.from("ml_orders_current").select("order_id,shipment_id,date_created,status,item_ids,item_titles,quantities,paid_amount,total_amount,order_json,synced_at").order("date_created",{ascending:false}).limit(1000);
  if(oe)return reply({error:"orders_unavailable"},503);
  const shipments=[...new Set((orders||[]).map(o=>o.shipment_id).filter(Boolean))];
- const [{data:jobs},{data:queue},{data:items,error:inventoryError},{data:settings},{data:shipStatuses}]=await Promise.all([
+ const [{data:jobs},{data:queue},{data:items,error:inventoryError},{data:settings},{data:shipStatuses},{data:shipCosts}]=await Promise.all([
   db.from("pearland_print_jobs").select("shipment_id,status,spooled_at,confirmed_at,created_at").in("shipment_id",shipments.length?shipments:[0]),
   db.from("ml_fulfillment_queue").select("shipment_id,invoice_status,processing_status").in("shipment_id",shipments.length?shipments:[0]),
   loadInventory(),
   db.from("pearland_sku_settings").select("item_id,unit_cost,lead_days,safety_days,physical_count,physical_counted_at"),
-  db.from("pearland_shipment_status").select("shipment_id,status,substatus,dispatched_at,first_observed_dispatched_at,schedule_json")
+  db.from("pearland_shipment_status").select("shipment_id,status,substatus,dispatched_at,first_observed_dispatched_at,schedule_json"),
+  db.from("pearland_shipment_costs").select("shipment_id,seller_cost,shipment_status,logistic_type").in("shipment_id",shipments.length?shipments:[0])
  ]);
  if(inventoryError)return reply({error:"inventory_unavailable"},503);
  const jm=new Map((jobs||[]).map(j=>[String(j.shipment_id),j]));
  const qm=new Map((queue||[]).map(q=>[String(q.shipment_id),q]));
  const sm=new Map((shipStatuses||[]).map(x=>[String(x.shipment_id),x]));
+ // Frete real cobrado do vendedor por envio; num pacote com vários pedidos o custo é dividido igualmente entre eles.
+ const cm=new Map((shipCosts||[]).map(x=>[String(x.shipment_id),x]));
+ const perShipment=new Map<string,number>();
+ for(const o of orders||[])if(o.shipment_id)perShipment.set(String(o.shipment_id),(perShipment.get(String(o.shipment_id))||0)+1);
+ const shippingFor=(o:any)=>{const c=o.shipment_id?cm.get(String(o.shipment_id)):null;if(!c||c.seller_cost===null)return null;return Number(c.seller_cost)/(perShipment.get(String(o.shipment_id))||1);};
  const [{data:taxRates},{data:costHistory},{data:financial},{data:ads},{data:expenses},{data:pricingCategories},{data:shippingBands},{data:itemPricingCategories}]=await Promise.all([
   db.from("pearland_financial_rates").select("effective_date,tax_pct").order("effective_date"),
   db.from("pearland_sku_cost_history").select("item_id,effective_date,unit_cost").order("effective_date"),
@@ -134,7 +148,7 @@ Deno.serve(async req=>{
   const buyer=o.order_json?.buyer||{},shipment=o.order_json?.shipping||{};
   const name=[buyer.first_name,buyer.last_name].filter(v=>typeof v==="string").join(" ");
   const j=jm.get(String(o.shipment_id)),q=qm.get(String(o.shipment_id));
-  return {order_id:String(o.order_id),shipment_id:o.shipment_id?String(o.shipment_id):null,date_created:o.date_created,status:o.status,buyer_name:name||null,buyer_nickname:buyer.nickname||null,items:(o.item_titles||[]).map((title:string,i:number)=>({title,item_id:String(o.item_ids?.[i]||""),quantity:Number(o.quantities?.[i]||1)})),paid_amount:Number(o.paid_amount||0),invoice_status:q?.invoice_status||"unknown",print_status:j?.status||"not_queued",printed_at:j?.confirmed_at||j?.spooled_at||null,shipment_status:sm.get(String(o.shipment_id))?.status||shipment.status||null,shipment_substatus:sm.get(String(o.shipment_id))?.substatus||null,dispatched_at:sm.get(String(o.shipment_id))?.dispatched_at||null,first_observed_dispatched_at:sm.get(String(o.shipment_id))?.first_observed_dispatched_at||null,label_release_date:sm.get(String(o.shipment_id))?.schedule_json?.shipping_option?.buffering?.date||null,order_synced_at:o.synced_at,financial_lines:fm.get(String(o.order_id))||[]};
+  return {order_id:String(o.order_id),shipment_id:o.shipment_id?String(o.shipment_id):null,date_created:o.date_created,status:o.status,buyer_name:name||null,buyer_nickname:buyer.nickname||null,items:(o.item_titles||[]).map((title:string,i:number)=>({title,item_id:String(o.item_ids?.[i]||""),quantity:Number(o.quantities?.[i]||1)})),paid_amount:Number(o.paid_amount||0),total_amount:o.total_amount==null?null:Number(o.total_amount),invoice_status:q?.invoice_status||"unknown",print_status:j?.status||"not_queued",printed_at:j?.confirmed_at||j?.spooled_at||null,shipment_status:sm.get(String(o.shipment_id))?.status||shipment.status||null,shipment_substatus:sm.get(String(o.shipment_id))?.substatus||null,dispatched_at:sm.get(String(o.shipment_id))?.dispatched_at||null,first_observed_dispatched_at:sm.get(String(o.shipment_id))?.first_observed_dispatched_at||null,label_release_date:sm.get(String(o.shipment_id))?.schedule_json?.shipping_option?.buffering?.date||null,order_synced_at:o.synced_at,financial_lines:fm.get(String(o.order_id))||[],shipping_cost:shippingFor(o),shipping_cost_status:o.shipment_id?(cm.get(String(o.shipment_id))?.shipment_status||null):null};
  });
  return reply({updated_at:new Date().toISOString(),orders:rows,inventory:items,sku_settings:settings||[],tax_rates:taxRates||[],cost_history:costHistory||[],ads_daily:ads||[],operating_expenses:expenses||[],pricing_categories:pricingCategories||[],shipping_bands:shippingBands||[],item_pricing_categories:itemPricingCategories||[]});
 });
