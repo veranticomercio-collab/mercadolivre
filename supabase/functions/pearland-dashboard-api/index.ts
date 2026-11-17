@@ -132,7 +132,8 @@ Deno.serve(async req=>{
  const perShipment=new Map<string,number>();
  for(const o of orders||[])if(o.shipment_id)perShipment.set(String(o.shipment_id),(perShipment.get(String(o.shipment_id))||0)+1);
  const shippingFor=(o:any)=>{const c=o.shipment_id?cm.get(String(o.shipment_id)):null;if(!c||c.seller_cost===null)return null;return Number(c.seller_cost)/(perShipment.get(String(o.shipment_id))||1);};
- const [{data:taxRates},{data:costHistory},{data:financial},{data:ads},{data:expenses},{data:pricingCategories},{data:shippingBands},{data:itemPricingCategories}]=await Promise.all([
+ const adsSince=new Date(Date.now()-120*86400000).toISOString().slice(0,10);
+ const [{data:taxRates},{data:costHistory},{data:financial},{data:ads},{data:expenses},{data:pricingCategories},{data:shippingBands},{data:itemPricingCategories},{data:adsItems}]=await Promise.all([
   db.from("pearland_financial_rates").select("effective_date,tax_pct").order("effective_date"),
   db.from("pearland_sku_cost_history").select("item_id,effective_date,unit_cost").order("effective_date"),
   db.from("ml_order_financial_observed").select("order_id,item_id,quantity,sale_fee_reported,sale_fee_if_per_unit,shipping_cost_raw").limit(5000),
@@ -140,7 +141,8 @@ Deno.serve(async req=>{
   db.from("pearland_operating_expenses").select("category,effective_date,monthly_amount").order("effective_date"),
   db.from("pearland_pricing_categories").select("id,name,fee_pct").order("name"),
   db.from("pearland_shipping_bands").select("name,min_weight_kg,max_weight_kg,estimated_cost,sort_order").order("sort_order"),
-  db.from("pearland_item_pricing_categories").select("item_id,category_id")
+  db.from("pearland_item_pricing_categories").select("item_id,category_id"),
+  db.from("pearland_ads_item_daily").select("metric_date,item_id,cost,ads_amount,ads_units,clicks").gte("metric_date",adsSince).limit(10000)
  ]);
  const fm=new Map<string,any[]>();
  for(const f of financial||[]){const k=String(f.order_id);fm.set(k,[...(fm.get(k)||[]),f]);}
@@ -150,5 +152,5 @@ Deno.serve(async req=>{
   const j=jm.get(String(o.shipment_id)),q=qm.get(String(o.shipment_id));
   return {order_id:String(o.order_id),shipment_id:o.shipment_id?String(o.shipment_id):null,date_created:o.date_created,status:o.status,buyer_name:name||null,buyer_nickname:buyer.nickname||null,items:(o.item_titles||[]).map((title:string,i:number)=>({title,item_id:String(o.item_ids?.[i]||""),quantity:Number(o.quantities?.[i]||1)})),paid_amount:Number(o.paid_amount||0),total_amount:o.total_amount==null?null:Number(o.total_amount),invoice_status:q?.invoice_status||"unknown",print_status:j?.status||"not_queued",printed_at:j?.confirmed_at||j?.spooled_at||null,shipment_status:sm.get(String(o.shipment_id))?.status||shipment.status||null,shipment_substatus:sm.get(String(o.shipment_id))?.substatus||null,dispatched_at:sm.get(String(o.shipment_id))?.dispatched_at||null,first_observed_dispatched_at:sm.get(String(o.shipment_id))?.first_observed_dispatched_at||null,label_release_date:sm.get(String(o.shipment_id))?.schedule_json?.shipping_option?.buffering?.date||null,order_synced_at:o.synced_at,financial_lines:fm.get(String(o.order_id))||[],shipping_cost:shippingFor(o),shipping_cost_status:o.shipment_id?(cm.get(String(o.shipment_id))?.shipment_status||null):null};
  });
- return reply({updated_at:new Date().toISOString(),orders:rows,inventory:items,sku_settings:settings||[],tax_rates:taxRates||[],cost_history:costHistory||[],ads_daily:ads||[],operating_expenses:expenses||[],pricing_categories:pricingCategories||[],shipping_bands:shippingBands||[],item_pricing_categories:itemPricingCategories||[]});
+ return reply({updated_at:new Date().toISOString(),orders:rows,inventory:items,sku_settings:settings||[],tax_rates:taxRates||[],cost_history:costHistory||[],ads_daily:ads||[],operating_expenses:expenses||[],pricing_categories:pricingCategories||[],shipping_bands:shippingBands||[],item_pricing_categories:itemPricingCategories||[],ads_items:adsItems||[]});
 });
