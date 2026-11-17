@@ -58,3 +58,4 @@ nav .selected{color:#9f593e}
 .alert-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.alert-card button.quiet{color:#475569}.alert-card.read{opacity:.6;border-left-color:#94a3b8}.alert-card.read>svg{color:#94a3b8}.alerts-toggle{justify-self:start;background:none;border:0;color:#475569;text-decoration:underline;cursor:pointer;padding:4px 0}.alerts-panel .finance-top button{margin-left:auto}
 .alert-card p.alert-todo{margin-top:6px;padding:8px 10px;background:#f8fafc;border-radius:8px;color:#1e293b}.alert-card p.alert-todo b{color:#172b4d}
 .stats article.stat-result{cursor:pointer;background:#ecfdf5;border-color:#a7f3d0}.stats article.stat-result strong{color:#047857}
+.stats article.stat-stock{cursor:pointer}
