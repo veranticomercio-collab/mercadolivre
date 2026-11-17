@@ -121,13 +121,13 @@ Deno.serve(async req=>{
   loadInventory(),
   db.from("pearland_sku_settings").select("item_id,unit_cost,lead_days,safety_days,physical_count,physical_counted_at"),
   db.from("pearland_shipment_status").select("shipment_id,status,substatus,dispatched_at,first_observed_dispatched_at,schedule_json"),
-  db.from("pearland_shipment_costs").select("shipment_id,seller_cost,shipment_status,logistic_type").in("shipment_id",shipments.length?shipments:[0])
+  db.from("pearland_shipping_effective").select("shipment_id,seller_cost,source,shipment_status,logistic_type").in("shipment_id",shipments.length?shipments:[0])
  ]);
  if(inventoryError)return reply({error:"inventory_unavailable"},503);
  const jm=new Map((jobs||[]).map(j=>[String(j.shipment_id),j]));
  const qm=new Map((queue||[]).map(q=>[String(q.shipment_id),q]));
  const sm=new Map((shipStatuses||[]).map(x=>[String(x.shipment_id),x]));
- // Frete real cobrado do vendedor por envio; num pacote com vários pedidos o custo é dividido igualmente entre eles.
+ // Frete por envio: valor cobrado no pagamento do Mercado Pago quando existe, senão o informado no envio; num pacote o custo é dividido entre os pedidos.
  const cm=new Map((shipCosts||[]).map(x=>[String(x.shipment_id),x]));
  const perShipment=new Map<string,number>();
  for(const o of orders||[])if(o.shipment_id)perShipment.set(String(o.shipment_id),(perShipment.get(String(o.shipment_id))||0)+1);
@@ -151,7 +151,7 @@ Deno.serve(async req=>{
   const buyer=o.order_json?.buyer||{},shipment=o.order_json?.shipping||{};
   const name=[buyer.first_name,buyer.last_name].filter(v=>typeof v==="string").join(" ");
   const j=jm.get(String(o.shipment_id)),q=qm.get(String(o.shipment_id));
-  return {order_id:String(o.order_id),shipment_id:o.shipment_id?String(o.shipment_id):null,date_created:o.date_created,status:o.status,buyer_name:name||null,buyer_nickname:buyer.nickname||null,items:(o.item_titles||[]).map((title:string,i:number)=>({title,item_id:String(o.item_ids?.[i]||""),quantity:Number(o.quantities?.[i]||1)})),paid_amount:Number(o.paid_amount||0),total_amount:o.total_amount==null?null:Number(o.total_amount),invoice_status:q?.invoice_status||"unknown",print_status:j?.status||"not_queued",printed_at:j?.confirmed_at||j?.spooled_at||null,shipment_status:sm.get(String(o.shipment_id))?.status||shipment.status||null,shipment_substatus:sm.get(String(o.shipment_id))?.substatus||null,dispatched_at:sm.get(String(o.shipment_id))?.dispatched_at||null,first_observed_dispatched_at:sm.get(String(o.shipment_id))?.first_observed_dispatched_at||null,label_release_date:sm.get(String(o.shipment_id))?.schedule_json?.shipping_option?.buffering?.date||null,order_synced_at:o.synced_at,financial_lines:fm.get(String(o.order_id))||[],shipping_cost:shippingFor(o),shipping_cost_status:o.shipment_id?(cm.get(String(o.shipment_id))?.shipment_status||null):null};
+  return {order_id:String(o.order_id),shipment_id:o.shipment_id?String(o.shipment_id):null,date_created:o.date_created,status:o.status,buyer_name:name||null,buyer_nickname:buyer.nickname||null,items:(o.item_titles||[]).map((title:string,i:number)=>({title,item_id:String(o.item_ids?.[i]||""),quantity:Number(o.quantities?.[i]||1)})),paid_amount:Number(o.paid_amount||0),total_amount:o.total_amount==null?null:Number(o.total_amount),invoice_status:q?.invoice_status||"unknown",print_status:j?.status||"not_queued",printed_at:j?.confirmed_at||j?.spooled_at||null,shipment_status:sm.get(String(o.shipment_id))?.status||shipment.status||null,shipment_substatus:sm.get(String(o.shipment_id))?.substatus||null,dispatched_at:sm.get(String(o.shipment_id))?.dispatched_at||null,first_observed_dispatched_at:sm.get(String(o.shipment_id))?.first_observed_dispatched_at||null,label_release_date:sm.get(String(o.shipment_id))?.schedule_json?.shipping_option?.buffering?.date||null,order_synced_at:o.synced_at,financial_lines:fm.get(String(o.order_id))||[],shipping_cost:shippingFor(o),shipping_source:o.shipment_id?(cm.get(String(o.shipment_id))?.source||null):null,shipping_cost_status:o.shipment_id?(cm.get(String(o.shipment_id))?.shipment_status||null):null};
  });
  return reply({updated_at:new Date().toISOString(),orders:rows,inventory:items,sku_settings:settings||[],tax_rates:taxRates||[],cost_history:costHistory||[],ads_daily:ads||[],operating_expenses:expenses||[],pricing_categories:pricingCategories||[],shipping_bands:shippingBands||[],item_pricing_categories:itemPricingCategories||[],ads_items:adsItems||[],claims:claims||[]});
 });
