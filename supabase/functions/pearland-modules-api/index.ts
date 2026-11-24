@@ -53,6 +53,11 @@ Deno.serve(async req=>{
   const {error:e}=await db.from("pearland_alert_acks").upsert(keys.map((k:string)=>({alert_key:k,acked_at:now,acked_by:user.id})),{onConflict:"alert_key"});
   return e?reply({error:"save_failed"},500):reply({ok:true});
  }
+ if(req.method==="GET"&&module==="balance"){
+  const {data,error:e}=await db.from("pearland_mp_balance").select("as_of,available_balance").order("as_of",{ascending:false}).limit(1);
+  if(e)return reply({error:"balance_unavailable"},503);
+  return reply({balance:data?.[0]||null});
+ }
  if(req.method==="GET"&&module==="reconciliation"){
   const since=new Date(Date.now()-120*86400000).toISOString();
   const [{data:rows,error:e},{data:last},{data:bal},{data:files},{data:bills}]=await Promise.all([
