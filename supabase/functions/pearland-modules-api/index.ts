@@ -55,12 +55,18 @@ Deno.serve(async req=>{
  }
  if(req.method==="GET"&&module==="reconciliation"){
   const since=new Date(Date.now()-120*86400000).toISOString();
-  const [{data:rows,error:e},{data:last}]=await Promise.all([
+  const [{data:rows,error:e},{data:last},{data:bal},{data:files},{data:bills}]=await Promise.all([
    db.from("pearland_reconciliation").select("*").gte("order_date",since).order("order_date",{ascending:false}).limit(3000),
-   db.from("pearland_payments").select("synced_at").order("synced_at",{ascending:false}).limit(1)
+   db.from("pearland_payments").select("synced_at").order("synced_at",{ascending:false}).limit(1),
+   db.from("pearland_mp_balance").select("as_of,available_balance").order("as_of",{ascending:false}).limit(30),
+   db.from("pearland_mp_release_files").select("file_name,processed_at,begin_date,end_date").order("processed_at",{ascending:false}).limit(1),
+   db.from("pearland_ml_billing").select("period_key,date_from,date_to,amount,unpaid_amount,period_status").order("period_key",{ascending:false}).limit(6)
   ]);
   if(e)return reply({error:"reconciliation_unavailable"},503);
-  return reply({rows:rows||[],synced_at:last?.[0]?.synced_at||null});
+  // Extrato: movimentos do relatório de liberações mais recente (exceto linhas de saldo informativas).
+  let statement:any[]=[];
+  if(files?.[0]){const {data:mv}=await db.from("pearland_mp_release_rows").select("release_date,source_id,record_type,description,net_credit,net_debit,order_id,payment_method").eq("file_name",files[0].file_name).eq("record_type","release").order("release_date",{ascending:false}).limit(1500);statement=mv||[];}
+  return reply({rows:rows||[],synced_at:last?.[0]?.synced_at||null,balance:bal||[],statement,statement_file:files?.[0]||null,billing:bills||[]});
  }
  if(req.method==="GET"&&module==="promotions"){
   const [{data:promos,error:e1},{data:econ,error:e2},{data:actions}]=await Promise.all([
