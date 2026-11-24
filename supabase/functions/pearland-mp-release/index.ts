@@ -67,7 +67,8 @@ async function doFetch(sup:any,tok:string){
  const {error:e1}=await sup.from("pearland_mp_release_files").upsert({file_name:latest.file_name,begin_date:latest.begin_date||null,end_date:latest.end_date||null,status:latest.status||null,initial_balance:initial,final_balance:final,rows_count:recs.length,processed_at:new Date().toISOString(),raw_meta:latest},{onConflict:"file_name"});
  if(e1)return {error:"db_file",detail:e1.message};
  for(let i=0;i<recs.length;i+=500){const {error:e2}=await sup.from("pearland_mp_release_rows").upsert(recs.slice(i,i+500),{onConflict:"file_name,line_no"});if(e2)return {error:"db_rows",detail:e2.message}}
- const asOf=latest.end_date||new Date().toISOString();
+ // Posição do saldo = momento em que o MP gerou o relatório (o end_date vem arredondado para o fim do dia).
+ const gen=latest.generation_date||latest.date_created||null;const asOf=gen&&!Number.isNaN(Date.parse(gen))&&Date.parse(gen)<Date.now()?new Date(gen).toISOString():new Date().toISOString();
  await sup.from("pearland_mp_balance").upsert({as_of:asOf,available_balance:final,file_name:latest.file_name},{onConflict:"as_of"});
  // Mantém só os 10 arquivos mais recentes para não acumular linhas repetidas.
  const {data:old}=await sup.from("pearland_mp_release_files").select("file_name").order("processed_at",{ascending:false}).range(10,200);
