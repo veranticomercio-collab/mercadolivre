@@ -3,7 +3,7 @@
   "short_name": "Pearland",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f8fafc",
-  "theme_color": "#111827",
+  "background_color": "#07090C",
+  "theme_color": "#07090C",
   "icons": []
 }
