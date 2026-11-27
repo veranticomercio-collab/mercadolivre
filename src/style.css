@@ -167,3 +167,42 @@ button:disabled{opacity:.45;cursor:default}
 .modal-backdrop{background:rgba(7,9,12,.82)}
 
 @media(max-width:700px){header{height:64px}.content{padding:24px 16px}.heading h1{font-size:28px}.brand-mark{width:30px;height:35px}.brand-word strong{font-size:14px}.brand-word .brand-by{font-size:8px}.login-card{padding:32px 24px}}
+
+/* ORKA — contagiros de desempenho (cores só aqui) */
+.desempenho-mes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:32px 0 0}
+.desempenho{background:var(--orka-superficie);border:1px solid var(--orka-linha);padding:24px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.desempenho-titulo{font-size:12px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--orka-aco)}
+.contagiro{width:100%;max-width:320px;height:auto;align-self:center;margin:8px 0 0;display:block}
+.contagiro-agulha{transition:transform .7s cubic-bezier(.34,1.25,.5,1)}
+@media(prefers-reduced-motion:reduce){.contagiro-agulha{transition:none}}
+.desempenho-leitura{display:flex;align-items:baseline;justify-content:center;gap:14px}
+.desempenho-leitura strong{font-family:var(--orka-fonte-marca);font-stretch:110%;font-weight:500;font-size:40px;line-height:1;color:var(--orka-gelo)}
+.estado{font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase}
+.estado-atencao{color:var(--orka-atencao)}.estado-saudavel{color:var(--orka-saudavel)}.estado-excelente{color:var(--orka-excelente)}
+.desempenho-cenario{margin:4px 0 0;text-align:center;color:var(--orka-gelo);font-size:15px}
+.desempenho-faixa{text-align:center}
+.desempenho .orka-secundario{align-self:center;margin-top:8px;min-height:44px;padding:0 20px;background:transparent;border:1px solid var(--orka-linha-forte);color:var(--orka-gelo);font-weight:500}
+.desempenho .orka-secundario:hover{border-color:var(--orka-aco)}
+.mini-desempenho{display:flex;align-items:center;gap:10px;margin-top:4px}
+.contagiro.mini{width:56px;max-width:none;margin:0;align-self:auto}
+.mini-desempenho .estado{font-size:10px}
+@media(max-width:700px){.desempenho-mes{grid-template-columns:1fr;gap:10px;margin-top:22px}.desempenho{padding:18px}.desempenho-leitura strong{font-size:32px}}
+
+/* ORKA — card de decisão (fundo claro) */
+.promo-block{display:grid;gap:0}
+.card-decisao{background:var(--orka-gelo);color:var(--orka-abismo);border:1px solid #D3D9DE;padding:28px 32px;display:grid;gap:16px;animation:orka-entra .4s cubic-bezier(.2,.8,.2,1)}
+@keyframes orka-entra{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.card-decisao{animation:none}}
+.card-decisao-rotulo{font-size:12px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--orka-aco-escuro)}
+.card-decisao h3{font-family:var(--orka-fonte-marca);font-stretch:110%;font-weight:500;font-size:26px;line-height:1.2;margin:0;color:var(--orka-abismo)}
+.card-decisao dl{margin:0;display:grid;border-top:1px solid #D3D9DE}
+.card-decisao dl>div{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:16px;padding:12px 0;border-bottom:1px solid #D3D9DE}
+.card-decisao dt{color:var(--orka-aco-escuro);font-size:14px}
+.card-decisao dd{margin:0;color:var(--orka-abismo);font-size:15px;font-weight:500;text-align:right;overflow-wrap:anywhere}
+.card-decisao-acoes{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.card-decisao-acoes button{min-height:48px;padding:0 24px;font-size:15px;font-weight:600}
+.card-decisao .aprovar{background:var(--orka-abismo)!important;color:var(--orka-gelo)!important;border:1px solid var(--orka-abismo)!important}
+.card-decisao .ajustar{background:transparent!important;color:var(--orka-abismo)!important;border:1px solid var(--orka-abismo)!important;font-weight:500}
+.card-decisao .recusar{background:transparent!important;color:var(--orka-aco-escuro)!important;border:0!important;font-weight:500}
+.card-decisao small{color:var(--orka-aco-escuro)!important;font-size:12px}
+@media(max-width:700px){.card-decisao{padding:22px 18px}.card-decisao h3{font-size:21px}.card-decisao dl>div{grid-template-columns:1fr;gap:4px}.card-decisao dd{text-align:left}.card-decisao-acoes button{flex:1}}
