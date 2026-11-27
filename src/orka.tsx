@@ -5,7 +5,7 @@ import{useEffect,useState}from"react";
 export type Faixa={atencao:number;excelente:number};
 // Metas padrão (em % da receita). Abaixo de "atencao" = vermelho; a partir de "excelente" = azul.
 export const METAS:{contribuicao:Faixa;resultado:Faixa}={
- contribuicao:{atencao:15,excelente:25},
+ contribuicao:{atencao:15,excelente:20},
  resultado:{atencao:5,excelente:12},
 };
 
