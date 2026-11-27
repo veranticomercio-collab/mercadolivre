@@ -60,3 +60,110 @@ nav .selected{color:#9f593e}
 .stats article.stat-result{cursor:pointer;background:#ecfdf5;border-color:#a7f3d0}.stats article.stat-result strong{color:#047857}
 .stats article.stat-stock{cursor:pointer}
 .recon-balance{display:grid;gap:2px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:14px;padding:16px 18px;margin-bottom:12px}.recon-balance strong{font-size:28px;color:#047857}.recon-balance small{color:#475569}
+
+/* ===== ORKA design system v1.0 — camada visual (Pearland · By ORKA) ===== */
+:root{
+  --orka-abismo:#07090C;--orka-grafite:#12161C;--orka-superficie:#0E1217;--orka-linha:#1A2027;--orka-linha-forte:#3A434E;
+  --orka-aco:#9AA4AE;--orka-aco-escuro:#4A535D;--orka-faceta:#6B7580;--orka-gelo:#EEF1F3;--orka-branco:#FFFFFF;
+  --orka-atencao:#E5484D;--orka-saudavel:#30A46C;--orka-excelente:#3E8BFF;
+  --orka-fonte-marca:'Archivo',sans-serif;--orka-fonte-texto:'Inter Tight',ui-sans-serif,system-ui,sans-serif;
+  --orka-curva:cubic-bezier(.2,.8,.2,1);
+  --card:var(--orka-superficie);--border:var(--orka-linha);--muted:var(--orka-aco);
+  font-family:var(--orka-fonte-texto);color:var(--orka-gelo);background:var(--orka-abismo);color-scheme:dark
+}
+body{background:var(--orka-abismo);color:var(--orka-gelo);font-weight:400;line-height:1.45}
+body{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpolygon points='2,2 13.5,10.3 15.5,15.5' fill='%23EEF1F3' stroke='%2307090C' stroke-width='0.6'/%3E%3Cpolygon points='2,2 10.3,13.5 15.5,15.5' fill='%236B7580' stroke='%2307090C' stroke-width='0.6'/%3E%3Cline x1='15.5' y1='15.5' x2='18' y2='18' stroke='%23EEF1F3' stroke-width='1'/%3E%3Ccircle cx='19.5' cy='19.5' r='2.6' fill='%2307090C' stroke='%23EEF1F3' stroke-width='1'/%3E%3Cline x1='21.4' y1='21.4' x2='25' y2='25' stroke='%2307090C' stroke-width='2.2'/%3E%3C/svg%3E") 2 2,auto}
+button,a,summary,select,[role=button]{cursor:pointer}
+input,textarea{cursor:text}
+*,*::before,*::after{border-radius:0!important;box-shadow:none!important;text-shadow:none!important}
+button,input,select,textarea{transition:background-color .3s var(--orka-curva),border-color .3s var(--orka-curva),color .3s var(--orka-curva)}
+:focus-visible{outline:1px solid var(--orka-gelo);outline-offset:2px}
+::selection{background:var(--orka-gelo);color:var(--orka-abismo)}
+
+/* Marca: Pearland + By ORKA */
+header{background:var(--orka-abismo);border-bottom:1px solid var(--orka-linha);height:80px}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-mark{width:38px;height:44px}
+.brand-word{display:flex;flex-direction:column;gap:5px}
+.brand-word strong{font-family:var(--orka-fonte-marca);font-stretch:125%;font-weight:600;font-size:17px;letter-spacing:.24em;line-height:1;color:var(--orka-gelo)}
+.brand-word .brand-by{font-family:var(--orka-fonte-texto);font-size:9px;font-weight:400;letter-spacing:.14em;line-height:1;color:var(--orka-aco);background:none;padding:0}
+.brand-word .brand-by b{font-family:var(--orka-fonte-marca);font-stretch:125%;font-weight:600;letter-spacing:.24em;color:var(--orka-aco)}
+.login-card .brand{justify-content:center;gap:18px}
+.login-card .brand-mark{width:58px;height:68px}
+.login-card .brand-word strong{font-size:24px}
+.login-card .brand-word .brand-by{font-size:10px}
+.quiet,header .quiet{background:transparent;border:1px solid var(--orka-linha-forte);color:var(--orka-gelo);min-width:44px;min-height:44px;justify-content:center;align-items:center}
+.quiet:hover{border-color:var(--orka-aco)}
+
+/* Tipografia */
+h1,h2,h3,.heading h1,.login h1,.modal h2{font-family:var(--orka-fonte-marca);font-stretch:110%;font-weight:500;color:var(--orka-gelo);letter-spacing:0}
+.heading h1{font-size:36px;margin:8px 0}
+.eyebrow,.title-row,.finance-table th,.alert-card small{font-family:var(--orka-fonte-texto);font-size:12px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--orka-aco)}
+.finance-table th{letter-spacing:.14em;font-size:11px}
+.muted,.heading .muted,footer,small,.order-top time,.order-bottom,.stats span,.dispatch-hint,.catalog-intro p,.login p,.modal p{color:var(--orka-aco)!important}
+.stats strong,.finance-kpis article strong,.stock-numbers b,.recon-balance strong,.promo-now b,.dispatch-switch b{font-family:var(--orka-fonte-marca);font-stretch:110%;font-weight:500;color:var(--orka-gelo)}
+.stats strong{font-size:30px}
+b,strong{color:inherit}
+.order-bottom b,.order-bottom strong,.sku-strip-label b,.claims-panel .finance-kpis article small b,.alert-card p.alert-todo b{color:var(--orka-gelo)}
+footer{border-top:1px solid var(--orka-linha);margin-top:48px}
+.content{max-width:1180px;padding:40px 32px}
+
+/* Superfícies */
+.stats article,.order,.products,.stock-card,.product-group,.finance-kpis article,.finance-settings article,.finance-product,.catalog-card,.operating-form,.operating-list article,.pricing-form,.pricing-category-list>div,.recon-calendar,.promo-item,.alert-card,.sku-strip,.modal,.login-card,.finance-table-wrap,.finance-operating,.pricing-reference{background:var(--orka-superficie)!important;border:1px solid var(--orka-linha)!important;color:var(--orka-gelo)}
+.items,.product-row,.buyer-line,.finance-table th,.finance-table td,.catalog-card details,.items>div{border-color:var(--orka-linha)!important}
+.title-row,.product-group-title,.finance-table th,.dre-table tr.dre-total td,.stock-numbers>div,.finance-product-values>div,.promo-row,.finance-product-thumb,.alert-card p.alert-todo{background:var(--orka-grafite)!important;border-color:var(--orka-linha)!important;color:var(--orka-gelo)}
+.stats svg,.alert-card>svg,.alert-card.alta>svg,.alert-card.read>svg,.stock-note{color:var(--orka-aco)!important}
+.stats article.stat-result,.stats article.stat-stock{cursor:pointer}
+.stats article.stat-result,.finance-kpis article.finance-margin,.recon-balance,.dre-table tr.dre-final td{background:var(--orka-grafite)!important;border-color:var(--orka-linha-forte)!important;color:var(--orka-gelo)!important}
+.stats article.stat-result strong,.finance-kpis article.finance-margin strong,.recon-balance strong{color:var(--orka-gelo)!important}
+.stats article:hover.stat-result,.stats article:hover.stat-stock{border-color:var(--orka-aco)!important}
+.recon-alert{background:var(--orka-superficie)!important;border-color:var(--orka-linha-forte)!important}
+.alert-card,.alert-card.alta,.alert-card.read{border-left:1px solid var(--orka-linha)!important}
+.alert-card.alta{border-color:var(--orka-linha-forte)!important}
+.alert-card p{color:var(--orka-gelo)}
+.recon-bar{background:var(--orka-linha)}.recon-bar i{background:var(--orka-gelo)}
+.dre-table tr.dre-neg td:not(:first-child),.dre-table tr.dre-info td{color:var(--orka-aco)}
+.empty{color:var(--orka-aco)}
+
+/* Navegação */
+nav{background:transparent;border:1px solid var(--orka-linha);padding:0;gap:0}
+nav button{color:var(--orka-aco);font-weight:500;min-height:44px;border-right:1px solid var(--orka-linha)!important}
+nav button:last-child{border-right:0!important}
+nav button:hover{color:var(--orka-gelo)}
+nav .selected{background:var(--orka-grafite);color:var(--orka-gelo);outline:1px solid var(--orka-linha-forte);outline-offset:-1px}
+.alert-badge,.alert-badge.high{background:transparent;border:1px solid var(--orka-linha-forte);color:var(--orka-gelo);font-weight:600}
+.alert-badge.high{background:var(--orka-gelo);color:var(--orka-abismo);border-color:var(--orka-gelo)}
+
+/* Campos */
+input,select,textarea,.search,.login input,.modal input,.finance-settings input,.finance-settings select,.finance-top select,.catalog-editor input,.operating-form input,.operating-form select,.pricing-form select,.pricing-form input,.pricing-add input,.pricing-category-list input,.finance-date-range input,.pricing-lookup input,.promo-price input{background:var(--orka-abismo)!important;border:1px solid var(--orka-linha-forte)!important;color:var(--orka-gelo)!important;min-height:44px}
+.search input{border:0!important;min-height:0}
+.search svg{color:var(--orka-aco)}
+input::placeholder{color:var(--orka-faceta)}
+input:focus,select:focus,.search:focus-within{border-color:var(--orka-gelo)!important;outline:0}
+label{color:var(--orka-aco)}
+.login label,.modal label{font-weight:500}
+
+/* Botões — primário (Gelo), secundário (borda), terciário (texto) */
+.login form button,.subtabs button.on,.modal-actions .primary,.dispatch-switch button.on,.finance-settings button,.catalog-edit,.catalog-editor button,.operating-form button,.finance-operating button,.pricing-category-list button,.pricing-add button,.pricing-lookup button,.promo-act button,.promo-act button.danger{background:var(--orka-gelo)!important;color:var(--orka-abismo)!important;border:1px solid var(--orka-gelo)!important;font-weight:600;min-height:44px}
+.login form .signup-toggle,.subtabs button,.modal-actions button,.dispatch-switch button,.stock-foot button,.finance-product-edit,.operating-list button,.alert-card button,.promo-act button.quiet,.catalog-editor .catalog-cancel,.sku-chip{background:transparent!important;color:var(--orka-gelo)!important;border:1px solid var(--orka-linha-forte)!important;font-weight:500}
+.login form .signup-toggle:hover,.subtabs button:hover,.modal-actions button:hover,.dispatch-switch button:hover,.stock-foot button:hover,.finance-product-edit:hover,.operating-list button:hover,.alert-card button:hover,.sku-chip:hover{border-color:var(--orka-aco)!important}
+.subtabs button.on,.dispatch-switch button.on{background:var(--orka-gelo)!important;color:var(--orka-abismo)!important}
+.dispatch-switch button.on b{color:var(--orka-abismo)}
+.alert-card button.quiet,.alerts-toggle{border:0!important;background:none!important;color:var(--orka-aco)!important}
+.sku-chip b{background:var(--orka-gelo);color:var(--orka-abismo)}
+.sku-chip img{background:var(--orka-grafite)}
+button:disabled{opacity:.45;cursor:default}
+
+/* Mensagens e selos (sem cor fora dos mostradores) */
+.error,.notice,.finance-warning{background:var(--orka-superficie)!important;color:var(--orka-gelo)!important;border:1px solid var(--orka-linha-forte)!important}
+.pill,.pill.warn{background:transparent;border:1px solid var(--orka-linha-forte);color:var(--orka-aco);letter-spacing:.12em;text-transform:uppercase}
+.pill.warn{color:var(--orka-gelo);border-color:var(--orka-gelo)}
+.promo-sim .neg,.promo-sim b.neg{color:var(--orka-atencao)}
+.promo-sim .pos{color:var(--orka-saudavel)}
+
+/* Login e janelas */
+.login{background:var(--orka-abismo)!important}
+.login-card{padding:48px}
+.modal-backdrop{background:rgba(7,9,12,.82)}
+
+@media(max-width:700px){header{height:64px}.content{padding:24px 16px}.heading h1{font-size:28px}.brand-mark{width:30px;height:35px}.brand-word strong{font-size:14px}.brand-word .brand-by{font-size:8px}.login-card{padding:32px 24px}}
